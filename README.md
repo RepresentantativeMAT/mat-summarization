@@ -91,10 +91,11 @@ classDiagram
     MATSummarize <|-- MATSG
     
     MATSummarize --> MultipleAspectTrajectory : Populates
-    MultipleAspectTrajectory *-- Centroid : Contains 1..*
+    MultipleAspectTrajectory *-- Point : Contains 1..*
     Centroid --|> Point : Extends
-    Point *-- TemporalAspect : Has
-    Centroid *-- AttributeValue : Has Multiple
+    Point --> TemporalAspect : Has
+    Centroid *--> TemporalAspect : Has Multiple
+    Point *-- AttributeValue : Has Multiple
     AttributeValue --> SemanticAspect : Maps to
 ```
 
@@ -134,8 +135,7 @@ classDiagram
 
 **1. Clone and Prepare the Environment**
 ```bash
-git clone https://github.com/YourUser/MAT-data.git
-cd MAT-data/rt2v-model-update
+git clone https://github.com/RepresentantativeMAT/mat-summarization.git
 pip install -r requirements.txt
 ```
 
@@ -184,7 +184,7 @@ Upon opening it, it will display the list of points condensed numerically and te
 -   Removal of Dead Code through scanning (`Vulture` specs).
 
 ## 📄 Model Authors / Contact
-Research referenced in **Representations and Clustering of Traces with Multiple Semantics for Smart Cities**. Developed with academic support and adaptation via IFSUL and original MAT-data repository.
+This research was partially funded by SoBigData++ Project - by Transnational Access (TNA),as well as the European Union’s Horizon 2020 research and inno-vation programme under GA N. 777695 (EU Project MASTER -Multiple ASpects TrajEctoRy management and analysis), until 2024. In present, the researcher is referenced in **Análise Avançada de Dados de Trajetórias: Uma ferramenta visual para identificação de padrões em dados de Mobilidade** project. Developed with academic support and adaptation via IFSUL and original MAT-data repository.
 
 For formal and architectural in-depth understanding based on the original research articles, refer to:
 - **MAT-SG ([Springer Link](https://link.springer.com/chapter/10.1007/978-3-031-12423-5_33))**: *Multiple-Aspect Trajectory Summarization based on a spatial Grid*
