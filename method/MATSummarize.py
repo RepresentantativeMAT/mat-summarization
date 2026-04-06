@@ -421,11 +421,11 @@ class MATSummarize(ABC):
                 time_atv = rp.find_attribute_value("TIME")
                 
                 if rp.sti is None and time_atv is not None:
-                    if isinstance(time_atv.value, dict):
-                        time_val = '{' + '; '.join([f"{k}: {v}" for k, v in time_atv.value.items()]) + '}'
+                    if isinstance(time_atv[1], dict):
+                        time_val = '{' + '; '.join([f"{k}: {v}" for k, v in time_atv[1].items()]) + '}'
                         time_val = time_val.replace("'", "")
                     else:
-                        time_val = str(time_atv.value)
+                        time_val = str(time_atv[1])
 
                 each_point = f"{rp.x} {rp.y}, {time_val}, "
 
@@ -434,9 +434,9 @@ class MATSummarize(ABC):
                     if atv is None:
                         each_point += 'null, '
                     else:
-                        if isinstance(atv.value, dict):
+                        if isinstance(atv[1], dict):
                             items = []
-                            for k, v in atv.value.items():
+                            for k, v in atv[1].items():
                                 if isinstance(k, tuple):
                                     k_str = "{" + ", ".join(str(i) for i in k) + "}"
                                 else:
@@ -444,7 +444,7 @@ class MATSummarize(ABC):
                                 items.append(f"{k_str}: {v}")
                             val_str = '{' + '; '.join(items) + '}'
                         else:
-                            val_str = str(atv.value)
+                            val_str = str(atv[1])
                             
                         # Replace to avoid python single quotes and clean up output
                         val_str = val_str.replace("'", "")

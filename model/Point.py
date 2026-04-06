@@ -101,12 +101,12 @@ class Point:
     
     def get_attribute_value(self, attribute:tuple[SemanticAspect, object]) -> (tuple[SemanticAspect, object]|None):
         if attribute[0].name.strip().upper in self.list_attr_values and self.list_attr_values[attribute[0].name.strip().upper()] == attribute[1]:
-            return tuple(attribute[0].name.strip().upper(), self.list_attr_values[attribute])
+            return (attribute[0].name.strip().upper(), self.list_attr_values[attribute])
         return None
     
     def find_attribute_value(self, name:str) -> (tuple[SemanticAspect, object]|None):
         if name.upper() in self.list_attr_values:
-            return tuple(name.upper(), self.list_attr_values[name.upper()])
+            return (name.upper(), self.list_attr_values[name.upper()])
         return None
 
 

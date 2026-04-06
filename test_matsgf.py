@@ -15,7 +15,7 @@ def test():
     feat_poi_price = Feature("POI_PRICE", ["POI", "price"])
     feat_weather_precip = Feature("WEATHER_PRECIP", ["weather", "precip"])
     
-    matsgf = MATSG(
+    matsgf = MATSGT(
         trc=0.25,
         trv=0.25, 
         path="data/input/Running_Example_v5.csv"
@@ -24,7 +24,7 @@ def test():
     
     matsgf.execute(
         dir="data/output/", 
-        file="MATSG_out", 
+        file="MATSGT_out", 
         lst_categorical_pd=['price'],
         values_null=['-1'], 
         ignore_columns=None,#['price', 'weather', 'precip'], 
