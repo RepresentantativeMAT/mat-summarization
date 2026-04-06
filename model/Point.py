@@ -7,14 +7,12 @@ if TYPE_CHECKING:
     from .Point import Point
     import datetime
 
-from .AttributeValue import AttributeValue
 from .TemporalAspect import TemporalAspect
-import math
-from .Util import minutes_to_time, time_to_minutes, float_to_long_bits
+from .Util import minutes_to_time, float_to_long_bits
 
 class Point:
 ##  Construtor  ##
-    def __init__(self, trajectory:MultipleAspectTrajectory = None, rid:int = None, x:float = None, y:float = None, start_time:datetime.time|int = None, end_time:datetime.time|int = None, semantics:list[AttributeValue] = None):
+    def __init__(self, trajectory:MultipleAspectTrajectory = None, rid:int = None, x:float = None, y:float = None, start_time:datetime.time|int = None, end_time:datetime.time|int = None, semantics:dict[str, object] = None):
         if isinstance(start_time, int):
             start_time:datetime.time = minutes_to_time(start_time)
         if isinstance(end_time, int):
@@ -24,7 +22,7 @@ class Point:
         self.__x:float = x
         self.__y:float = y
         self.__time:TemporalAspect = TemporalAspect(start_time, end_time)
-        self.__list_attr_values:list[AttributeValue] = (list(semantics) if semantics else [])
+        self.__list_attr_values:dict[SemanticAspect, object] = (semantics if semantics else {})
         self.__cell_reference:str = ''
 
 
@@ -76,11 +74,11 @@ class Point:
     
     #   List_attr_values
     @property
-    def list_attr_values(self) -> list[AttributeValue]:
+    def list_attr_values(self) -> dict[SemanticAspect, object]:
         return self.__list_attr_values
     
     @list_attr_values.setter
-    def list_attr_values(self, list_attr_values:list[AttributeValue]):
+    def list_attr_values(self, list_attr_values:dict[SemanticAspect, object]):
         self.__list_attr_values = list_attr_values
 
     #   Cell_reference
@@ -94,26 +92,21 @@ class Point:
 
 
 ##  Functions  ##
-    def add_attr_value(self, value:object, attr:SemanticAspect, num_value_sd:float|None = None):
-        self.list_attr_values.append(AttributeValue(value, attr, num_value_sd))
+    def add_attr_value(self, value:object, attr:SemanticAspect):
+        self.list_attr_values[attr.name] = value
 
     def show_attr_values(self) -> str:
-        txt = '('
-        for atv in self.list_attr_values:
-            txt += atv.attribute.name + ': ' + str(atv.value) + ', '
-        txt += ')'
+        txt = str(self.list_attr_values)
         return txt
     
-    def get_attribute_value(self, attribute:AttributeValue) -> (AttributeValue|None):
-        for atv in self.list_attr_values:
-            if (atv.attribute.equals(attribute)):
-                return atv
+    def get_attribute_value(self, attribute:tuple[SemanticAspect, object]) -> (tuple[SemanticAspect, object]|None):
+        if attribute[0].name.strip().upper in self.list_attr_values and self.list_attr_values[attribute[0].name.strip().upper()] == attribute[1]:
+            return tuple(attribute[0].name.strip().upper(), self.list_attr_values[attribute])
         return None
     
-    def find_attribute_value(self, name:str) -> (AttributeValue|None):
-        for att in self.list_attr_values:
-            if (att.attribute.name.lower() == name.lower()):
-                return att
+    def find_attribute_value(self, name:str) -> (tuple[SemanticAspect, object]|None):
+        if name.upper() in self.list_attr_values:
+            return tuple(name.upper(), self.list_attr_values[name.upper()])
         return None
 
 
@@ -125,7 +118,7 @@ class Point:
         h = 89 * h + self.rid
         h = 89 * h + float_to_long_bits(self.x)
         h = 89 * h + float_to_long_bits(self.y)
-        h = 89 * h + hash(tuple(self.list_attr_values))
+        h = 89 * h + hash(tuple(self.list_attr_values.items()))
         h = 89 * h + hash(self.time)
         return h
 

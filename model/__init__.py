@@ -1,4 +1,3 @@
-from .AttributeValue import AttributeValue
 from .Centroid import Centroid
 from .MultipleAspectTrajectory import MultipleAspectTrajectory
 from .Point import Point
@@ -8,8 +7,8 @@ from .STI import STI
 from .TemporalAspect import TemporalAspect
 
 __all__ = [
-    "AttributeValue",
     "Centroid",
+    "Feature",
     "MultipleAspectTrajectory",
     "Point",
     "SemanticAspect",

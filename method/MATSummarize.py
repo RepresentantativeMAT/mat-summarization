@@ -7,7 +7,7 @@ import numpy as np
 import math
 from collections import defaultdict, Counter
 from scipy.spatial import cKDTree
-from model import MultipleAspectTrajectory, SemanticAspect, SemanticType, AttributeValue, Point, TemporalAspect, STI, Centroid
+from model import MultipleAspectTrajectory, SemanticAspect, SemanticType, Point, TemporalAspect, STI, Centroid
 from model.Util import time_to_minutes, minutes_to_time, remove_outliers
 from .MUITAS import MUITAS
 
@@ -78,7 +78,7 @@ class MATSummarize(ABC):
 
         rid = 1
         for row in df.itertuples(index=False):
-            semantics = []
+            semantics = {}
             for c in semantic_columns:
                 v = getattr(row, c)
                 aspc = aspects_map[c]
@@ -88,7 +88,7 @@ class MATSummarize(ABC):
                     v = '*' + str(v)
                 elif aspc.type == SemanticType.CATEGORICAL and isinstance(v, str):
                     v = v.upper()
-                semantics.append(AttributeValue(v, aspc, None))
+                semantics[aspc] = v
 
             p = Point(None, rid, row.x, row.y, row.time, None, semantics)
             self._points.append(p)
@@ -173,8 +173,13 @@ class MATSummarize(ABC):
 
             self.summarize_numerical_aspects(rep)
             self.summarize_categorical_aspects(rep)
+            self.process_representative_point(rep)
             
         self.reset_values_to_summarization()
+
+    def process_representative_point(self, rep_point):
+        # Template hook for subclasses to apply extra processing to the generated Rep Point
+        pass
 
     @abstractmethod
     def process_cell_points(self, cell_points, cell_id):
@@ -190,19 +195,19 @@ class MATSummarize(ABC):
     def fuse_aspects(self, point):
         values_num_invalid = self._values_null if hasattr(self, '_values_null') and self._values_null else []
 
-        for atv in point.list_attr_values:
-            attr_actual = str(atv.attribute.order)
+        for atv in point.list_attr_values.items():
+            attr_actual = atv[0]
 
             try: 
-                val = float(str(atv.value))
-                self._aspects[self._aspects.index(atv.attribute)].type = SemanticType.NUMERICAL
+                val = float(str(atv[1]))
+                self._aspects[self._aspects.index(atv[0])].type = SemanticType.NUMERICAL
                 
                 if val not in values_num_invalid:
                     self._semantic_numeric_fusion_val[attr_actual].append(val)
             except ValueError:
-                if atv.attribute.type is None or atv.attribute.type != SemanticType.NUMERICAL:
-                    self._aspects[self._aspects.index(atv.attribute)].type = SemanticType.CATEGORICAL
-                    self._semantic_categorical_summarization_val[atv.attribute][atv.value] += 1
+                if self._aspects[self._aspects.index(atv[0])].type is None or self._aspects[self._aspects.index(atv[0])].type != SemanticType.NUMERICAL:
+                    self._aspects[self._aspects.index(atv[0])].type = SemanticType.CATEGORICAL
+                    self._semantic_categorical_summarization_val[atv[0]][atv[1]] += 1
 
     def summarize_numerical_aspects(self, rep_point):
         for k, v in self._semantic_numeric_fusion_val.items():
@@ -222,9 +227,9 @@ class MATSummarize(ABC):
                     median = float(np.median(v))
             
             if not new_map:
-                rep_point.add_attr_value(median, self._aspects[int(k)])
+                rep_point.add_attr_value(median, self._aspects[self._aspects.index(k)])
             else:
-                rep_point.add_attr_value(new_map, self._aspects[int(k)])
+                rep_point.add_attr_value(new_map, self._aspects[self._aspects.index(k)])
 
     def summarize_categorical_aspects(self, rep_point):
         for k, im in self._semantic_categorical_summarization_val.items():
@@ -430,7 +435,14 @@ class MATSummarize(ABC):
                         each_point += 'null, '
                     else:
                         if isinstance(atv.value, dict):
-                            val_str = '{' + '; '.join([f"{k}: {v}" for k, v in atv.value.items()]) + '}'
+                            items = []
+                            for k, v in atv.value.items():
+                                if isinstance(k, tuple):
+                                    k_str = "{" + ", ".join(str(i) for i in k) + "}"
+                                else:
+                                    k_str = str(k)
+                                items.append(f"{k_str}: {v}")
+                            val_str = '{' + '; '.join(items) + '}'
                         else:
                             val_str = str(atv.value)
                             

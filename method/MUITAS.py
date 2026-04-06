@@ -1,4 +1,4 @@
-from model import MultipleAspectTrajectory, STI, Centroid, Point, AttributeValue
+from model import MultipleAspectTrajectory, STI, Centroid, Point
 from model import Util
 
 class MUITAS:
@@ -100,25 +100,22 @@ class MUITAS:
         return score
     
 
-    def compute_match(self, rep: AttributeValue, atv: AttributeValue) -> float:
+    def compute_match(self, rep: tuple[str, object], atv: tuple[str, object]) -> float:
         c_match = 0
 
         if (atv is None or rep is None):
             return 0
 
-        if (isinstance(rep.value, dict)):
-            values_rt = rep.value
-            if (str(atv.value) in values_rt):
+        if (isinstance(rep[1], dict)):
+            values_rt = rep[1]
+            if (str(atv[1]) in values_rt):
                 c_match = 1
         else:
-            if (rep.numerical_value_sd != 0 and rep.numerical_value_sd is not None):
-                c_match = 1 if abs(float(str(rep.value)) - float(str(atv.value))) <= ((0 if rep.numerical_value_sd is None else rep.numerical_value_sd) * 2.5) else 0
-            else:
-                try:
-                    c_match = 1 if abs(float(str(rep.value)) - float(str(atv.value))) <= self.get_threshold(atv.attribute) else 0
-                except AttributeError:
-                    c_match = 1 if abs(float(str(rep.value)) - float(str(atv.value))) <= 1 else 0
-                except TypeError:
-                    c_match = 1 if atv.value == rep.value else 0
+            try:
+                c_match = 1 if abs(float(str(rep[1])) - float(str(atv[1]))) <= self.get_threshold(atv[0]) else 0
+            except AttributeError:
+                c_match = 1 if abs(float(str(rep[1])) - float(str(atv[1]))) <= 1 else 0
+            except TypeError:
+                c_match = 1 if atv[1] == rep[1] else 0
 
-        return c_match * self.get_weight(rep.attribute)
+        return c_match * self.get_weight(rep[0])
