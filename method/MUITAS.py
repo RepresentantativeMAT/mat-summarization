@@ -1,4 +1,4 @@
-from model import MultipleAspectTrajectory, STI, Centroid, Point
+from model import MultipleAspectTrajectory, STI, Centroid, Point, SemanticAspect
 from model import Util
 
 class MUITAS:
@@ -91,8 +91,8 @@ class MUITAS:
         s_match = 1 if p1.sti and p1.sti.interval.is_in_interval(p2.time.start_time) else 0
         score += s_match * self.get_weight('TIME')
 
-        for atv_p1 in p1.list_attr_values:
-            temp_att_p2 = p2.find_attribute_value(atv_p1) if atv_p1 is not None else None
+        for atv_p1 in p1.list_feat_values.items():
+            temp_att_p2 = p2.find_feat_value(atv_p1) if atv_p1 is not None else None
 
             temp_semantic_match = self.compute_match(atv_p1, temp_att_p2)
             score += temp_semantic_match
@@ -100,7 +100,7 @@ class MUITAS:
         return score
     
 
-    def compute_match(self, rep: tuple[str, object], atv: tuple[str, object]) -> float:
+    def compute_match(self, rep: tuple[tuple[SemanticAspect, ...], list[object]], atv: tuple[tuple[SemanticAspect, ...], list[object]]) -> float:
         c_match = 0
 
         if (atv is None or rep is None):

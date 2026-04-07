@@ -12,7 +12,7 @@ from .Util import minutes_to_time, float_to_long_bits
 
 class Point:
 ##  Construtor  ##
-    def __init__(self, trajectory:MultipleAspectTrajectory = None, rid:int = None, x:float = None, y:float = None, start_time:datetime.time|int = None, end_time:datetime.time|int = None, semantics:dict[str, object] = None):
+    def __init__(self, trajectory:MultipleAspectTrajectory = None, rid:int = None, x:float = None, y:float = None, start_time:datetime.time|int = None, end_time:datetime.time|int = None, semantics:dict[tuple[SemanticAspect, ...], list[object]] = None):
         if isinstance(start_time, int):
             start_time:datetime.time = minutes_to_time(start_time)
         if isinstance(end_time, int):
@@ -22,7 +22,7 @@ class Point:
         self.__x:float = x
         self.__y:float = y
         self.__time:TemporalAspect = TemporalAspect(start_time, end_time)
-        self.__list_attr_values:dict[SemanticAspect, object] = (semantics if semantics else {})
+        self.__list_feat_values:dict[tuple[SemanticAspect, ...], list[object]] = (semantics if semantics else {})
         self.__cell_reference:str = ''
 
 
@@ -74,12 +74,12 @@ class Point:
     
     #   List_attr_values
     @property
-    def list_attr_values(self) -> dict[SemanticAspect, object]:
-        return self.__list_attr_values
+    def list_feat_values(self) -> dict[tuple[SemanticAspect, ...], list[object]]:
+        return self.__list_feat_values
     
-    @list_attr_values.setter
-    def list_attr_values(self, list_attr_values:dict[SemanticAspect, object]):
-        self.__list_attr_values = list_attr_values
+    @list_feat_values.setter
+    def list_feat_values(self, list_feat_values:dict[tuple[SemanticAspect, ...], list[object]]):
+        self.__list_feat_values = list_feat_values
 
     #   Cell_reference
     @property
@@ -92,22 +92,32 @@ class Point:
 
 
 ##  Functions  ##
-    def add_attr_value(self, value:object, attr:SemanticAspect):
-        self.list_attr_values[attr.name] = value
+    def add_feat_value(self, value:object, feat:tuple[SemanticAspect, ...]):
+        self.list_feat_values[feat] = value
 
-    def show_attr_values(self) -> str:
-        txt = str(self.list_attr_values)
-        return txt
+    def show_feat_values(self) -> str:
+        return str(self.list_feat_values)
+        
     
-    def get_attribute_value(self, attribute:tuple[SemanticAspect, object]) -> (tuple[SemanticAspect, object]|None):
-        if attribute[0].name.strip().upper in self.list_attr_values and self.list_attr_values[attribute[0].name.strip().upper()] == attribute[1]:
-            return (attribute[0].name.strip().upper(), self.list_attr_values[attribute])
+    def get_feat_value(self, feat:tuple[tuple[SemanticAspect, ...], list[object]]) -> (tuple[tuple[SemanticAspect, ...], list[object]]|None):
+        if feat[0] in self.list_feat_values and feat[1] == self.list_feat_values[feat[0]]:
+            return (feat[0], self.list_feat_values[feat[0]])
         return None
     
-    def find_attribute_value(self, name:str) -> (tuple[SemanticAspect, object]|None):
-        if name.upper() in self.list_attr_values:
-            return (name.upper(), self.list_attr_values[name.upper()])
+    def find_feat_value(self, feat:tuple[tuple[SemanticAspect, ...]]) -> (tuple[tuple[SemanticAspect, ...], list[object]]|None):
+        if feat[0] in self.list_feat_values:
+            return (feat[0], self.list_feat_values[feat[0]])
         return None
+    
+    # def get_attribute_value(self, attribute:tuple[tuple[SemanticAspect, ...], list[object]]) -> (tuple[tuple[SemanticAspect, ...], list[object]]|None):
+    #     if attribute[0].name.strip().upper in self.list_feat_values and self.list_feat_values[attribute[0].name.strip().upper()] == attribute[1]:
+    #         return (attribute[0].name.strip().upper(), self.list_feat_values[attribute])
+    #     return None
+    
+    # def find_attribute_value(self, name:str) -> (tuple[tuple[SemanticAspect, ...], list[object]]|None):
+    #     if name.upper() in self.list_feat_values:
+    #         return (name.upper(), self.list_feat_values[name.upper()])
+    #     return None
 
 
 ##  Hash  ##
@@ -118,7 +128,7 @@ class Point:
         h = 89 * h + self.rid
         h = 89 * h + float_to_long_bits(self.x)
         h = 89 * h + float_to_long_bits(self.y)
-        h = 89 * h + hash(tuple(self.list_attr_values.items()))
+        h = 89 * h + hash(tuple(self.list_feat_values.items()))
         h = 89 * h + hash(self.time)
         return h
 
@@ -138,7 +148,7 @@ class Point:
             return False
         if (self.trajectory != other.trajectory):
             return False
-        if (self.list_attr_values != other.list_attr_values):
+        if (self.list_feat_values != other.list_feat_values):
             return False
         if (self.time != other.time):
             return False
@@ -155,5 +165,5 @@ class Point:
         if (self.time):
             txt += '\nTemporal Aspect: ' + str(self.time)
         if (self.list_attr_values):
-            txt += '\n' + self.show_attr_values()
+            txt += '\n' + self.show_feat_values()
         return txt

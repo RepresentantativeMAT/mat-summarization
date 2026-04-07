@@ -78,7 +78,7 @@ class MATSGT(MATSummarize):
                 count = 1
                 current_interval = None
 
-        print("DEBUG STIs generated:", [str(sti) + " prop: " + str(sti.proportion) for sti in stis])
+        # print("DEBUG STIs generated:", [str(sti) + " prop: " + str(sti.proportion) for sti in stis])
 
     def asort_temporal_intervals(self, stis: list):
         stis.sort(key=lambda sti: sti.proportion, reverse=True)

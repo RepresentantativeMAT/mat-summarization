@@ -11,15 +11,11 @@ from method.MUITAS import MUITAS
 from model.Feature import Feature
 
 def test():
-    # Define features
-    feat_poi_price = Feature("POI_PRICE", ["POI", "price"])
-    feat_weather_precip = Feature("WEATHER_PRECIP", ["weather", "precip"])
     
     matsgf = MATSGT(
         trc=0.25,
         trv=0.25, 
         path="data/input/Running_Example_v5.csv"
-        #features=[feat_poi_price, feat_weather_precip]
     )
     
     matsgf.execute(
@@ -27,7 +23,7 @@ def test():
         file="MATSGT_out", 
         lst_categorical_pd=['price'],
         values_null=['-1'], 
-        ignore_columns=None,#['price', 'weather', 'precip'], 
+        ignore_columns=None,
         pattern_date_input='?', 
         rc=0.25, 
         trv=0.25

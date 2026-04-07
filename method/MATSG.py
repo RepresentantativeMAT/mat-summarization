@@ -37,7 +37,7 @@ class MATSG(MATSummarize):
         
         # Insert Faked Temporal Dimension
         time_aspect = SemanticAspect("TIME", order=-1, type=SemanticType.CATEGORICAL)
-        rp.add_attr_value(normalized_time, time_aspect)
+        rp.add_feat_value(normalized_time, (time_aspect,))
         
         self._list_rep_point.append(rp)
         
