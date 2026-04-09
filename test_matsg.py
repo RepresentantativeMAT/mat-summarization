@@ -1,13 +1,9 @@
 import sys
 import os
 
-# Add the project root to sys.path if not running from root module
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from method.MATSG import MATSG
-from method.MATSGT import MATSGT
-from method.MUITAS import MUITAS
-from model.Feature import Feature
 
 def test():
     
@@ -19,13 +15,14 @@ def test():
     
     matsgf.execute(
         dir="data/output/", 
-        file="MATSG_out", 
+        file="F-MATSG_out", 
         lst_categorical_pd=['price'],
         values_null=['-1'], 
         ignore_columns=None,
         pattern_date_input='?', 
         rc=0.25, 
-        trv=0.25
+        trv=0.25,
+        features=[('poi',), ('poi', 'price'), ('weather',), ('precip',)]
     )
     print("Execution Finished!")
 

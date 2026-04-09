@@ -26,6 +26,7 @@ class MATSummarize(ABC):
         self._trv = trv
         ## Load
         self._aspects = []
+        self._features = [] #aspect groups
         self._points = []
         self._spatial_cell_grid = defaultdict(list)
         ## Summarization Step
@@ -44,7 +45,7 @@ class MATSummarize(ABC):
         self._better_rt = MultipleAspectTrajectory
         self._aux_max_z = 0.0
 
-    def load(self, path, ignore_columns = None, force_cat_columns = None, values_null = None):
+    def load(self, path, ignore_columns = None, force_cat_columns = None, values_null = None, features=list[tuple[SemanticAspect, ...]]):
         always_ignore = ['tid', 'lat_lon', 'time', 'label', 'x', 'y']
         df = pd.read_csv(path)
 
@@ -71,6 +72,12 @@ class MATSummarize(ABC):
         df[['x', 'y']] = df['lat_lon'].str.split(' ', expand=True).astype(float)
 
         semantic_columns = [c for c in df.columns if c in aspects_map]
+
+        for feat in features:
+            feat_list = []
+            for name in feat:
+                feat_list.append([a for a in self._aspects if a.name == name.upper()][0])
+            self._features.append(tuple(feat_list))
 
 #provavel alteracao para utilizar FEATURES
         rid = 1
@@ -223,13 +230,11 @@ class MATSummarize(ABC):
             else:
                 if v:
                     median = float(np.median(v))
-        
-#provavel alteracao para utilizar FEATURES
+
             if not new_map:
                 rep_point.add_feat_value(median, (self._aspects[self._aspects.index(k)],))
             else:
                 rep_point.add_feat_value(new_map, (self._aspects[self._aspects.index(k)],))
-#
 
     def summarize_categorical_aspects(self, rep_point):
         for k, im in self._semantic_categorical_summarization_val.items():
@@ -293,7 +298,7 @@ class MATSummarize(ABC):
         
         return new_map_sorted
 
-    def execute(self, dir, file, lst_categorical_pd, values_null, ignore_columns, pattern_date_input, rc, trv):
+    def execute(self, dir, file, lst_categorical_pd, values_null, ignore_columns, pattern_date_input, rc, trv, features:list[tuple[SemanticAspect, ...]]):
         self._initial_temp = datetime.today()
         self._directory = dir
         self._filename = file
@@ -313,7 +318,7 @@ class MATSummarize(ABC):
         self._dataset = []
         self._list_rep_point = []
 
-        self.load(path=self._path, ignore_columns=ignore_columns, force_cat_columns=lst_categorical_pd)
+        self.load(path=self._path, ignore_columns=ignore_columns, force_cat_columns=lst_categorical_pd, features=features)
 
         self._rc = rc
         self._trc = (rc * len(self._points)) if rc > 0.0 else 2
