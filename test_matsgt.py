@@ -4,7 +4,6 @@ import os
 # Add the project root to sys.path if not running from root module
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from method.MATSGF import MATSGF
 from method.MATSG import MATSG
 from method.MATSGT import MATSGT
 from method.MUITAS import MUITAS

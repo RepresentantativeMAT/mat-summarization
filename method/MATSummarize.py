@@ -51,23 +51,19 @@ class MATSummarize(ABC):
         if ignore_columns:
             df.drop(columns=ignore_columns, inplace=True, errors='ignore')
         
-        order = 0
         aspects_map = {}
         for column in df.columns:
             if force_cat_columns and column in force_cat_columns:
-                aspc = SemanticAspect(column, order, SemanticType.CATEGORICAL)
+                aspc = SemanticAspect(column, SemanticType.CATEGORICAL)
                 self._aspects.append(aspc)
                 aspects_map[column] = aspc
-                order += 1
             elif column not in always_ignore:
                 aspc = SemanticAspect(
                     column,
-                    order,
                     SemanticType.CATEGORICAL if not pd.api.types.is_numeric_dtype(df[column]) else SemanticType.NUMERICAL
                 )
                 self._aspects.append(aspc)
                 aspects_map[column] = aspc
-                order += 1
         
         for i in df['tid'].unique():
             self._dataset.append(MultipleAspectTrajectory(None, i))
@@ -213,7 +209,7 @@ class MATSummarize(ABC):
 
     def summarize_numerical_aspects(self, rep_point):
         for k, v in self._semantic_numeric_fusion_val.items():
-            median = -999.0
+            median = float('-inf')
             new_map = {}
 
             if self._consider_nulls:
@@ -240,7 +236,7 @@ class MATSummarize(ABC):
             internal_categorical_list = dict(sorted(im.items(), key=lambda item: item[1], reverse=True))
             rep_point.add_feat_value(
                 self.normalize_ranking_values(internal_categorical_list, len(rep_point.point_list_source), 's', self._consider_nulls),
-                k
+                (self._aspects[self._aspects.index(k)],)
             )
 
     def normalize_ranking_values(self, map_rank, mapped_pts, dimension, consider_nulls=True):
@@ -410,19 +406,13 @@ class MATSummarize(ABC):
 
             head = ['lat_lon', ' time']
             for att in self._aspects:
-                if att.type == SemanticType.CATEGORICAL:
-                    head.append(' ' + att.name.upper())
-                else:
-                    if att.name.lower() == 'precip':
-                        head.append(' PRECIP')
-                    else:
-                        head.append(' ' + att.name.lower())
+                head.append(' ' + att.name.lower())
             head.append(' mapping')
 
             writer.writerow(head)
             for rp in self._better_rt.point_list:
                 time_val = str(rp.sti) if rp.sti else "null"
-                time_atv = rp.find_feat_value("TIME")
+                time_atv = rp.find_feat_value((SemanticAspect("TIME", type=SemanticType.CATEGORICAL),))
                 
                 if rp.sti is None and time_atv is not None:
                     if isinstance(time_atv[1], dict):

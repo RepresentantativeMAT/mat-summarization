@@ -36,7 +36,7 @@ class MATSG(MATSummarize):
         normalized_time = self.normalize_ranking_values(temporal_ranking_map, len(cell_points), 't', self._consider_nulls)
         
         # Insert Faked Temporal Dimension
-        time_aspect = SemanticAspect("TIME", order=-1, type=SemanticType.CATEGORICAL)
+        time_aspect = SemanticAspect("TIME", type=SemanticType.CATEGORICAL)
         rp.add_feat_value(normalized_time, (time_aspect,))
         
         self._list_rep_point.append(rp)

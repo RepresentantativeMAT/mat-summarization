@@ -92,7 +92,7 @@ class MUITAS:
         score += s_match * self.get_weight('TIME')
 
         for atv_p1 in p1.list_feat_values.items():
-            temp_att_p2 = p2.find_feat_value(atv_p1) if atv_p1 is not None else None
+            temp_att_p2 = p2.find_feat_value(atv_p1[0]) if atv_p1 is not None else None
 
             temp_semantic_match = self.compute_match(atv_p1, temp_att_p2)
             score += temp_semantic_match

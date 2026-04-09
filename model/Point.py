@@ -104,20 +104,10 @@ class Point:
             return (feat[0], self.list_feat_values[feat[0]])
         return None
     
-    def find_feat_value(self, feat:tuple[tuple[SemanticAspect, ...]]) -> (tuple[tuple[SemanticAspect, ...], list[object]]|None):
-        if feat[0] in self.list_feat_values:
-            return (feat[0], self.list_feat_values[feat[0]])
+    def find_feat_value(self, feat:tuple[SemanticAspect, ...]) -> (tuple[tuple[SemanticAspect, ...], list[object]]|None):
+        if feat in self.list_feat_values:
+            return (feat, self.list_feat_values[feat])
         return None
-    
-    # def get_attribute_value(self, attribute:tuple[tuple[SemanticAspect, ...], list[object]]) -> (tuple[tuple[SemanticAspect, ...], list[object]]|None):
-    #     if attribute[0].name.strip().upper in self.list_feat_values and self.list_feat_values[attribute[0].name.strip().upper()] == attribute[1]:
-    #         return (attribute[0].name.strip().upper(), self.list_feat_values[attribute])
-    #     return None
-    
-    # def find_attribute_value(self, name:str) -> (tuple[tuple[SemanticAspect, ...], list[object]]|None):
-    #     if name.upper() in self.list_feat_values:
-    #         return (name.upper(), self.list_feat_values[name.upper()])
-    #     return None
 
 
 ##  Hash  ##

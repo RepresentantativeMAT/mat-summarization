@@ -2,9 +2,8 @@ from .SemanticType import SemanticType
 
 class SemanticAspect:
 ##  Construtor  ##
-    def __init__(self, name:str, order:int = None, type:SemanticType = None):
+    def __init__(self, name:str, type:SemanticType = None):
         self.__name:str = name.strip().upper()
-        self.__order:int = order
         self.__type:SemanticType = type
 
 
@@ -17,15 +16,6 @@ class SemanticAspect:
     @name.setter
     def name(self, name:str):
         self.__name = name
-
-    #   Order
-    @property
-    def order(self) -> int:
-        return self.__order
-    
-    @order.setter
-    def order(self, order:int):
-        self.__order = order
 
     #   Type
     @property
@@ -65,4 +55,4 @@ class SemanticAspect:
         return self.name
     
     def __repr__(self) ->str:
-        return 'SemanticAspect(' + self.name + ', ' + str(self.order) + ', ' + str(self.type.description) + ')'
+        return 'SemanticAspect(' + self.name + ', ' + ', ' + str(self.type.description) + ')'
