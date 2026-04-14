@@ -217,7 +217,7 @@ class MATSummarize(ABC):
 
             for i in range(len(ftv[0])):
                 try: 
-                    val = float(str(ftv[1]))
+                    val = float(str(ftv[1][i]))
                     self._features[self._features.index(ftv[0])][i].type = SemanticType.NUMERICAL
                 
                     if val not in values_num_invalid:
