@@ -93,10 +93,7 @@ class Point:
 
 ##  Functions  ##
     def add_feat_value(self, value:object, feat:tuple[SemanticAspect, ...]):
-        if not self.list_feat_values[feat]:
-            self.list_feat_values[feat] = [value]
-        else:
-            self.list_feat_values[feat].append(value)
+        self.list_feat_values[feat] = [value]
 
     def show_feat_values(self) -> str:
         return str(self.list_feat_values)

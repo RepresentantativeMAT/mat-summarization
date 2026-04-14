@@ -83,6 +83,13 @@ class MATSummarize(ABC):
         rid = 1
         for row in df.itertuples(index=False):
             semantics = {}
+            fsemantics = {}
+
+            for fgroup in self._features:
+                fsemantics[fgroup] = []
+                for feat in range(len(fgroup)):
+                    fsemantics[fgroup].append(None)
+
             for c in semantic_columns:
                 v = getattr(row, c)
                 aspc = aspects_map[c]
@@ -94,7 +101,12 @@ class MATSummarize(ABC):
                     v = v.upper()
                 semantics[aspc] = v
 
-            p = Point(None, rid, row.x, row.y, row.time, None, semantics)
+                for fgroup in self._features:
+                    for feat in range(len(fgroup)):
+                        if fgroup[feat].name == aspc.name:
+                            fsemantics[fgroup][feat] = v
+
+            p = Point(None, rid, row.x, row.y, row.time, None, fsemantics)
             self._points.append(p)
             self._dataset[row.tid - 1].add_point(p)
             rid += 1
@@ -203,16 +215,17 @@ class MATSummarize(ABC):
         for ftv in point.list_feat_values.items():
             feat_current = ftv[0]
 
-            try: 
-                val = float(str(ftv[1]))
-                self._aspects[self._aspects.index(ftv[0])].type = SemanticType.NUMERICAL
+            for i in range(len(ftv[0])):
+                try: 
+                    val = float(str(ftv[1]))
+                    self._features[self._features.index(ftv[0])][i].type = SemanticType.NUMERICAL
                 
-                if val not in values_num_invalid:
-                    self._semantic_numeric_fusion_val[feat_current].append(val)
-            except ValueError:
-                if self._aspects[self._aspects.index(ftv[0])].type is None or self._aspects[self._aspects.index(ftv[0])].type != SemanticType.NUMERICAL:
-                    self._aspects[self._aspects.index(ftv[0])].type = SemanticType.CATEGORICAL
-                    self._semantic_categorical_summarization_val[ftv[0]][ftv[1]] += 1
+                    if val not in values_num_invalid:
+                        self._semantic_numeric_fusion_val[feat_current].append(val)
+                except ValueError:
+                    if self._features[self._features.index(ftv[0])][i].type is None or self._features[self._features.index(ftv[0])][i].type != SemanticType.NUMERICAL:
+                        self._features[self._features.index(ftv[0])][i].type = SemanticType.CATEGORICAL
+                        self._semantic_categorical_summarization_val[ftv[0]][ftv[1][i]] += 1
 
     def summarize_numerical_aspects(self, rep_point):
         for k, v in self._semantic_numeric_fusion_val.items():
@@ -232,16 +245,16 @@ class MATSummarize(ABC):
                     median = float(np.median(v))
 
             if not new_map:
-                rep_point.add_feat_value(median, (self._aspects[self._aspects.index(k)],))
+                rep_point.add_feat_value(median, (self._features[self._features.index(k)],))
             else:
-                rep_point.add_feat_value(new_map, (self._aspects[self._aspects.index(k)],))
+                rep_point.add_feat_value(new_map, (self._features[self._features.index(k)],))
 
     def summarize_categorical_aspects(self, rep_point):
         for k, im in self._semantic_categorical_summarization_val.items():
             internal_categorical_list = dict(sorted(im.items(), key=lambda item: item[1], reverse=True))
             rep_point.add_feat_value(
                 self.normalize_ranking_values(internal_categorical_list, len(rep_point.point_list_source), 's', self._consider_nulls),
-                (self._aspects[self._aspects.index(k)],)
+                (self._features[self._features.index(k)],)
             )
 
     def normalize_ranking_values(self, map_rank, mapped_pts, dimension, consider_nulls=True):
@@ -410,8 +423,8 @@ class MATSummarize(ABC):
             writer.writerow(['RT description:'])
 
             head = ['lat_lon', ' time']
-            for att in self._aspects:
-                head.append(' ' + att.name.lower())
+            for att in self._features:
+                head.append(' ' + str(att).replace('(', '').replace(',)', '').replace(')', '').lower())
             head.append(' mapping')
 
             writer.writerow(head)
@@ -428,7 +441,7 @@ class MATSummarize(ABC):
 
                 each_point = f"{rp.x} {rp.y}, {time_val}, "
 
-                for att in self._aspects:
+                for att in self._features:
                     atv = rp.find_feat_value((att,))
                     if atv is None:
                         each_point += 'null, '
@@ -446,7 +459,7 @@ class MATSummarize(ABC):
                             val_str = str(atv[1])
                             
                         # Replace to avoid python single quotes and clean up output
-                        val_str = val_str.replace("'", "")
+                        val_str = val_str.replace("'", "").replace(",", ";")
                         each_point += f"{val_str}, "
                 
                 each_point += f"{rp.get_mapping_information()}, "
