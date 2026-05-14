@@ -245,16 +245,16 @@ class MATSummarize(ABC):
                     median = float(np.median(v))
 
             if not new_map:
-                rep_point.add_feat_value(median, (self._features[self._features.index(k)],))
+                rep_point.add_feat_value(median, self._features[self._features.index(k)])
             else:
-                rep_point.add_feat_value(new_map, (self._features[self._features.index(k)],))
+                rep_point.add_feat_value(new_map, self._features[self._features.index(k)])
 
     def summarize_categorical_aspects(self, rep_point):
         for k, im in self._semantic_categorical_summarization_val.items():
             internal_categorical_list = dict(sorted(im.items(), key=lambda item: item[1], reverse=True))
             rep_point.add_feat_value(
                 self.normalize_ranking_values(internal_categorical_list, len(rep_point.point_list_source), 's', self._consider_nulls),
-                (self._features[self._features.index(k)],)
+                self._features[self._features.index(k)]
             )
 
     def normalize_ranking_values(self, map_rank, mapped_pts, dimension, consider_nulls=True):
@@ -478,10 +478,11 @@ class MATSummarize(ABC):
 
         aux_weight = 0.33 / len(self._aspects)
 
-        for each_att in self._aspects:
-            measure.set_weight(each_att, aux_weight)
-            if each_att.type == SemanticType.NUMERICAL:
-                measure.set_threshold(each_att, 10)
+        for each_feat in self._features:
+            measure.set_weight(each_feat, aux_weight)
+            for each_att in each_feat:
+                if each_att.type == SemanticType.NUMERICAL:
+                    measure.set_threshold(each_att, 10)
 
         measure.set_threshold('SPATIAL', self._spatial_threshold * 2)
 

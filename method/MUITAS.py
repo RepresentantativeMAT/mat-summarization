@@ -102,20 +102,25 @@ class MUITAS:
 
     def compute_match(self, rep: tuple[tuple[SemanticAspect, ...], list[object]], atv: tuple[tuple[SemanticAspect, ...], list[object]]) -> float:
         c_match = 0
+        print(rep[1])
 
         if (atv is None or rep is None):
             return 0
+        
+        for i in range(len(rep[0])):
 
-        if (isinstance(rep[1], dict)):
-            values_rt = rep[1]
-            if (str(atv[1]) in values_rt):
-                c_match = 1
-        else:
-            try:
-                c_match = 1 if abs(float(str(rep[1])) - float(str(atv[1]))) <= self.get_threshold(atv[0]) else 0
-            except AttributeError:
-                c_match = 1 if abs(float(str(rep[1])) - float(str(atv[1]))) <= 1 else 0
-            except TypeError:
-                c_match = 1 if atv[1] == rep[1] else 0
+            if (isinstance(rep[1][i], dict)):
+                values_rt = rep[1][i]
+                if (str(atv[1][i]) in values_rt):
+                    c_match += 1
+            else:
+                try:
+                    c_match += 1 if abs(float(str(rep[1][i])) - float(str(atv[1][i]))) <= self.get_threshold(atv[0][i]) else 0
+                except AttributeError:
+                    c_match += 1 if abs(float(str(rep[1][i])) - float(str(atv[1][i]))) <= 1 else 0
+                except TypeError:
+                    c_match += 1 if atv[1][i] == rep[1][i] else 0
+        c_match = 1 if c_match == len(rep[0]) else 0
+        #print('Rep:', rep, '| Atv:', atv, '=', c_match)
 
         return c_match * self.get_weight(rep[0])

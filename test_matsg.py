@@ -15,14 +15,14 @@ def test():
     
     matsgf.execute(
         dir="data/output/", 
-        file="F-MATSG_out", 
+        file="MATSG_out", 
         lst_categorical_pd=['price'],
         values_null=['-1'], 
         ignore_columns=None,
         pattern_date_input='?', 
         rc=0.25, 
         trv=0.25,
-        features=[('poi',), ('poi', 'price'), ('weather',), ('precip',)]
+        features=[('poi',), ('price',), ('weather',), ('precip',)]
     )
     print("Execution Finished!")
 
