@@ -28,3 +28,10 @@ def remove_outliers(values, lower_value, upper_value) -> list:
         if (val >= lower_value and val <= upper_value):
             valid_values.append(val)
     return valid_values
+
+def is_floatable(value):
+    try:
+        float(value)
+        return True
+    except (ValueError, TypeError):
+        return False

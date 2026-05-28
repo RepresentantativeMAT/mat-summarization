@@ -26,7 +26,7 @@ def test():
         pattern_date_input='?', 
         rc=0.25, 
         trv=0.25,
-        features=[('poi',), ('poi', 'price'), ('weather',), ('precip',)]
+        features=[('poi',), ('poi', 'price'), ('weather', 'precip')]
     )
     print("Execution Finished!")
 

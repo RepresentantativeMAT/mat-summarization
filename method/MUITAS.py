@@ -1,4 +1,4 @@
-from model import MultipleAspectTrajectory, STI, Centroid, Point, SemanticAspect
+from model import MultipleAspectTrajectory, STI, Centroid, Point, SemanticAspect, SemanticType
 from model import Util
 
 class MUITAS:
@@ -101,26 +101,58 @@ class MUITAS:
     
 
     def compute_match(self, rep: tuple[tuple[SemanticAspect, ...], list[object]], atv: tuple[tuple[SemanticAspect, ...], list[object]]) -> float:
+        # print('\nREP:', rep)
+        # print('ATV:', atv)
         c_match = 0
-        print(rep[1])
+        #* if it is a multi-aspect feature
+        if len(rep[0]) > 1:
+            if not any(a.type == SemanticType.NUMERICAL for a in rep[0]):
+                if (isinstance(rep[1][0], dict)):
+                    if (str(atv[1][0]) in rep[1][0]):
+                        c_match = 1
+            else: #! if it has numerical
+                #? At first, we find the index of the first NUMERICAL
+                index = 0
+                for i in range(len(rep[0])):
+                    if rep[0][i].type == SemanticType.NUMERICAL:
+                        index = i
+                        break
 
-        if (atv is None or rep is None):
-            return 0
-        
-        for i in range(len(rep[0])):
+                atv_val = atv[1][0].split(', ')
 
-            if (isinstance(rep[1][i], dict)):
-                values_rt = rep[1][i]
-                if (str(atv[1][i]) in values_rt):
-                    c_match += 1
+                for key in rep[1][0].keys():
+                    c_match = 0
+                    key_vals = key.split(', ')
+
+                    if (index >= 1):
+                        if (', '.join(atv_val[0:index]) == ', '.join(key_vals[0:index])):
+                            c_match += 1
+                        else:
+                            continue
+                    
+                    for i, val in enumerate(key_vals[index:]):
+                        try:
+                            c_match += 1 if abs(float(str(val)) - float(str(atv_val[i + index]))) <= self.get_threshold(atv[0][i + index]) else 0
+                        except AttributeError:
+                            c_match += 1 if abs(float(str(val)) - float(str(atv_val[i + index]))) <= 1 else 0
+                        except (TypeError, ValueError):
+                            c_match += 1 if atv_val[i + index] == val else 0
+
+                    if ((len(atv_val[index:]) + (index >= 1)) == c_match):
+                        c_match = 1
+                        break
+
+        #* if it is a single-aspect feature
+        else:
+            if (isinstance(rep[1][0], dict)):
+                if (str(atv[1][0]) in rep[1][0]):
+                    c_match = 1
             else:
                 try:
-                    c_match += 1 if abs(float(str(rep[1][i])) - float(str(atv[1][i]))) <= self.get_threshold(atv[0][i]) else 0
+                    c_match = 1 if abs(float(str(rep[1][0])) - float(str(atv[1][0]))) <= self.get_threshold(atv[0][0]) else 0
                 except AttributeError:
-                    c_match += 1 if abs(float(str(rep[1][i])) - float(str(atv[1][i]))) <= 1 else 0
-                except TypeError:
-                    c_match += 1 if atv[1][i] == rep[1][i] else 0
-        c_match = 1 if c_match == len(rep[0]) else 0
-        #print('Rep:', rep, '| Atv:', atv, '=', c_match)
-
+                    c_match = 1 if abs(float(str(rep[1][0])) - float(str(atv[1][0]))) <= 1 else 0
+                except (TypeError, ValueError):
+                    c_match = 1 if atv[1][0] == rep[1][0] else 0
+        # print(c_match)
         return c_match * self.get_weight(rep[0])

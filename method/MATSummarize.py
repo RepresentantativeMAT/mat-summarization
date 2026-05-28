@@ -77,7 +77,7 @@ class MATSummarize(ABC):
             feat_list = []
             for name in feat:
                 feat_list.append([a for a in self._aspects if a.name == name.upper()][0])
-            self._features.append(tuple(feat_list))
+            self._features.append(tuple(sorted(feat_list, key=lambda aspect: aspect.type)))
 
 #provavel alteracao para utilizar FEATURES
         rid = 1
@@ -105,6 +105,10 @@ class MATSummarize(ABC):
                     for feat in range(len(fgroup)):
                         if fgroup[feat].name == aspc.name:
                             fsemantics[fgroup][feat] = v
+
+            for feat in fsemantics:
+                if len(feat) > 1:
+                    fsemantics[feat] = [', '.join(map(str, fsemantics[feat]))]
 
             p = Point(None, rid, row.x, row.y, row.time, None, fsemantics)
             self._points.append(p)
@@ -217,7 +221,7 @@ class MATSummarize(ABC):
 
             for i in range(len(ftv[0])):
                 try: 
-                    val = float(str(ftv[1][i]))
+                    val = float(str(ftv[1][0]))
                     self._features[self._features.index(ftv[0])][i].type = SemanticType.NUMERICAL
                 
                     if val not in values_num_invalid:
@@ -225,7 +229,7 @@ class MATSummarize(ABC):
                 except ValueError:
                     if self._features[self._features.index(ftv[0])][i].type is None or self._features[self._features.index(ftv[0])][i].type != SemanticType.NUMERICAL:
                         self._features[self._features.index(ftv[0])][i].type = SemanticType.CATEGORICAL
-                        self._semantic_categorical_summarization_val[ftv[0]][ftv[1][i]] += 1
+                        self._semantic_categorical_summarization_val[ftv[0]][ftv[1][0]] += 1
 
     def summarize_numerical_aspects(self, rep_point):
         for k, v in self._semantic_numeric_fusion_val.items():
@@ -442,7 +446,7 @@ class MATSummarize(ABC):
                 each_point = f"{rp.x} {rp.y}, {time_val}, "
 
                 for att in self._features:
-                    atv = rp.find_feat_value((att,))
+                    atv = rp.find_feat_value(att)
                     if atv is None:
                         each_point += 'null, '
                     else:
@@ -476,18 +480,19 @@ class MATSummarize(ABC):
         measure.set_weight('SPATIAL', 0.34)
         measure.set_weight('TIME', 0.33)
 
-        aux_weight = 0.33 / len(self._aspects)
+        aux_weight = 0.33 / len(self._features)
 
         for each_feat in self._features:
             measure.set_weight(each_feat, aux_weight)
             for each_att in each_feat:
                 if each_att.type == SemanticType.NUMERICAL:
-                    measure.set_threshold(each_att, 10)
+                    measure.set_threshold(each_att, 5)
 
         measure.set_threshold('SPATIAL', self._spatial_threshold * 2)
 
         rep_measure = 0
         list_values = [measure.similarity_of(self._representative_trajectory, t) for t in self._dataset]
+        print(list_values)
 
         rep_measure = np.median(list_values)
 
