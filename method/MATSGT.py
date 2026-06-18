@@ -33,7 +33,7 @@ class MATSGT(MATSummarize):
                         rp.add_point(vp)
                         # We must fuse ONLY the aspects of points that actually belong to this Centroid
                         # To prevent contamination of categoric counts from points outside this STI interval in the same cell
-                
+
                 if rp.point_list_source:
                     self._list_rep_point.append(rp)
 
@@ -65,19 +65,18 @@ class MATSGT(MATSummarize):
         current_interval = None
 
         for i in range(0, len(tip)):
-            if i != len(tip) - 1 and time_to_minutes(tip[i]) + threshold >= time_to_minutes(tip[i + 1]):
-                if not current_interval:
+            if i != len(tip) - 1 and time_to_minutes(tip[i]) + 58 >= time_to_minutes(tip[i + 1]):
+                if current_interval is None:
                     current_interval = TemporalAspect(tip[i])
                 count += 1
             else:
-                if not current_interval:
+                if current_interval is None:
                     current_interval = TemporalAspect(tip[i])
                 else:
                     current_interval.end_time = tip[i]
                 stis.append(STI(current_interval, count / len(tip)))
                 count = 1
                 current_interval = None
-
         # print("DEBUG STIs generated:", [str(sti) + " prop: " + str(sti.proportion) for sti in stis])
 
     def asort_temporal_intervals(self, stis: list):

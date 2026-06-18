@@ -12,21 +12,20 @@ from model.Feature import Feature
 def test():
     
     matsgf = MATSGT(
-        trc=0.25,
-        trv=0.25, 
-        path="data/input/Running_Example_v5.csv"
+        trc=0.15,
+        trv=0.05,
+        path="data/input/foursquare_user_6.csv"
     )
     
     matsgf.execute(
         dir="data/output/", 
-        file="F-MATSGT_out", 
+        file="fq_u6_MATSGT_out", 
         lst_categorical_pd=['price'],
         values_null=['-1'], 
         ignore_columns=None,
         pattern_date_input='?', 
-        rc=0.25, 
-        trv=0.25,
-        features=[('poi',), ('poi', 'price'), ('weather', 'precip')]
+        rc=0.15,
+        features=[('price',), ('weather',), ('rating',), ('category',), ('day',)]
     )
     print("Execution Finished!")
 

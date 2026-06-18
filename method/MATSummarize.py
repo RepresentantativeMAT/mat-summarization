@@ -81,7 +81,13 @@ class MATSummarize(ABC):
 
 #provavel alteracao para utilizar FEATURES
         rid = 1
+        idx = 0
+        tid_anterior = float('-inf')
+        df = df.sort_values(by='tid')
         for row in df.itertuples(index=False):
+            if (tid_anterior == float('-inf')):
+                tid_anterior = row.tid
+
             semantics = {}
             fsemantics = {}
 
@@ -110,9 +116,13 @@ class MATSummarize(ABC):
                 if len(feat) > 1:
                     fsemantics[feat] = [', '.join(map(str, fsemantics[feat]))]
 
-            p = Point(None, rid, row.x, row.y, row.time, None, fsemantics)
+            if (tid_anterior != row.tid):
+                tid_anterior = row.tid
+                idx += 1
+
+            p = Point(None, rid, row.x, row.y, row.date_time, None, fsemantics)
             self._points.append(p)
-            self._dataset[row.tid - 1].add_point(p)
+            self._dataset[idx].add_point(p)
             rid += 1
 #-----------------------------------------
 
@@ -122,13 +132,20 @@ class MATSummarize(ABC):
 
         coords = np.array([[p.x, p.y] for p in self._points])
         
+        #? np.linalg.norm() calcula a distância euclidiana
+        #? de cada uma das coordenadas com o ponto (0, 0)
         distances_to_origin = np.linalg.norm(coords, axis=1)
         max_distance_to_zero = np.max(distances_to_origin)
 
         if len(coords) > 1:
             tree = cKDTree(coords)
-            distances, _ = tree.query(coords, k=2)
-            valid_distances = distances[:, 1]
+            k = len(coords)
+            distances, _ = tree.query(coords, k=k)
+            valid_distances = np.array([
+                row[row > 0][0]
+                for row in distances
+                if np.any(row > 0)
+            ])
             
             median_min_dist = np.median(valid_distances)
             sd_min_dist = np.std(valid_distances)
@@ -141,7 +158,7 @@ class MATSummarize(ABC):
                 (valid_distances <= upper_value_min_dist) & 
                 (valid_distances != 0.0)
             ]
-                
+
             if len(valid_distances_without_outliers) > 0:
                 self._spatial_threshold = float(np.mean(valid_distances_without_outliers))
                 self._aux_max_z = float(max_distance_to_zero / self._spatial_threshold)
@@ -180,7 +197,7 @@ class MATSummarize(ABC):
         self._list_rep_point.sort(reverse=True)
         for rep in self._list_rep_point:
             self.reset_values_to_summarization()
-            
+
             self._representative_trajectory.add_point(rep)
             self._representative_trajectory.increment_value(len(rep.point_list_source))
             
@@ -315,11 +332,10 @@ class MATSummarize(ABC):
         
         return new_map_sorted
 
-    def execute(self, dir, file, lst_categorical_pd, values_null, ignore_columns, pattern_date_input, rc, trv, features:list[tuple[SemanticAspect, ...]]):
+    def execute(self, dir, file, lst_categorical_pd, values_null, ignore_columns, pattern_date_input, rc, features:list[tuple[SemanticAspect, ...]]):
         self._initial_temp = datetime.today()
         self._directory = dir
         self._filename = file
-        self._trv = trv
         self._values_null = [float(x) for x in values_null] if values_null is not None else []
         self._representative_trajectory = MultipleAspectTrajectory('representative')
 
@@ -492,7 +508,6 @@ class MATSummarize(ABC):
 
         rep_measure = 0
         list_values = [measure.similarity_of(self._representative_trajectory, t) for t in self._dataset]
-        print(list_values)
 
         rep_measure = np.median(list_values)
 
