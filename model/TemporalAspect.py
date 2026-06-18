@@ -78,4 +78,8 @@ class TemporalAspect:
 
 ##  ToString  ##
     def __str__(self) -> str:
-        return self.start_time.strftime('%H:%M') + ((' - ' + self.end_time.strftime('%H:%M')) if self.end_time else '')
+        if (self.__end_time and (self.__start_time != self.__end_time)):
+            return self.__start_time.strftime('%H:%M') + ' - ' + self.__end_time.strftime('%H:%M')
+        else:
+            return self.__start_time.strftime('%H:%M')
+        # return self.start_time.strftime('%H:%M') + ((' - ' + self.end_time.strftime('%H:%M')) if self.end_time else '')

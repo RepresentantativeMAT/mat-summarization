@@ -510,5 +510,6 @@ class MATSummarize(ABC):
         list_values = [measure.similarity_of(self._representative_trajectory, t) for t in self._dataset]
 
         rep_measure = np.median(list_values)
+        print(rep_measure)
 
         return rep_measure
