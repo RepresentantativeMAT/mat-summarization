@@ -417,7 +417,8 @@ class MATSummarize(ABC):
         return (
             f"{temp_better_z}, {self._cell_size_space}, {self._rc}, {self._trv}, "
             f"{len(self._spatial_cell_grid)}, {self._trc}, "
-            f"{len(self._better_rt.point_list)}, {self._better_rt.cover_points}"
+            f"{len(self._better_rt.point_list)}, {self._better_rt.cover_points}, "
+            f"{self._spatial_threshold}"
         )
     
     def write_representative_trajectory(self, file_output, info_better_rt:str):
@@ -433,12 +434,12 @@ class MATSummarize(ABC):
             writer.writerow([str(len(self._dataset)), f" {len(self._points)}"])
             writer.writerow(['##'])
             writer.writerow(['RT setting infos:'])
-            writer.writerow(['method', ' thresholdCellSize', ' CellSize', ' tauRelevantCell', ' tauRepresentativenessValue', ' |cell|', ' minPointsRC', ' |rt|', ' |cover_points|'])
+            writer.writerow(['method', ' thresholdCellSize', ' CellSize', ' tauRelevantCell', ' tauRepresentativenessValue', ' |cell|', ' minPointsRC', ' |rt|', ' |cover_points|', ' spatialThreshold'])
             
             method_name = f"MAT-{self.__class__.__name__[3:]}"
             # Format info_better_rt properly to match the space padding without quotes
             parts = info_better_rt.split(', ')
-            writer.writerow([method_name, f" {parts[0]}", f" {parts[1]}", f" {parts[2]}", f" {parts[3]}", f" {parts[4]}", f" {parts[5]}", f" {parts[6]}", f" {parts[7]}"])
+            writer.writerow([method_name, f" {parts[0]}", f" {parts[1]}", f" {parts[2]}", f" {parts[3]}", f" {parts[4]}", f" {parts[5]}", f" {parts[6]}", f" {parts[7]}", f" {parts[8]}"])
             writer.writerow(['##'])
             writer.writerow(['RT description:'])
 
@@ -510,6 +511,6 @@ class MATSummarize(ABC):
         list_values = [measure.similarity_of(self._representative_trajectory, t) for t in self._dataset]
 
         rep_measure = np.median(list_values)
-        print(rep_measure)
+        # print(rep_measure)
 
         return rep_measure

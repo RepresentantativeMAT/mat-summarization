@@ -1,5 +1,13 @@
-a = {'element, 1': 1, 'square, 2': 4}
-b = ', '.join(map(str, list(a.keys()))).split(', ')
+from pathlib import Path
+import re
 
-for i in b:
-    print(i, type(i))
+folder_path = Path('./data/input')
+
+users = []
+
+for item in folder_path.iterdir():
+    if item.is_file():
+        users.append(int(re.sub(r"\D", "", item.name)))
+
+users.sort()
+print(users)
