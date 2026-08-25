@@ -26,4 +26,4 @@ Homepage = "https://github.com/RepresentantativeMAT/mat-summarization"
 Issues = "https://github.com/RepresentantativeMAT/mat-summarization/issues"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/nome"]
+packages = ["src/mat_summarization"]

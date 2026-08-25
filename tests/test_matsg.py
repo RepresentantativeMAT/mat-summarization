@@ -3,14 +3,14 @@ import os
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from method.MATSG import MATSG
+from ..src.mat_summarization.method.MATSG import MATSG
 
 def test():
     
     matsgf = MATSG(
         trc=0.25,
         trv=0.25, 
-        path="data/input/Running_Example_v5.csv"
+        path="../data/input/Running_Example_v5.csv"
     )
     
     matsgf.execute(

@@ -77,6 +77,7 @@ class MATSummarize(ABC):
             feat_list = []
             for name in feat:
                 feat_list.append([a for a in self._aspects if a.name == name.upper()][0])
+            print(feat_list)
             self._features.append(tuple(sorted(feat_list, key=lambda aspect: aspect.type)))
 
 #provavel alteracao para utilizar FEATURES

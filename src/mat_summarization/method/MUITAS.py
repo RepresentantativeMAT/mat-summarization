@@ -103,6 +103,9 @@ class MUITAS:
     def compute_match(self, rep: tuple[tuple[SemanticAspect, ...], list[object]], atv: tuple[tuple[SemanticAspect, ...], list[object]]) -> float:
         # print('\nREP:', rep)
         # print('ATV:', atv)
+        ## Safe guard
+        if rep is None or atv is None:
+            return 0.0
         c_match = 0
         #* if it is a multi-aspect feature
         if len(rep[0]) > 1:
