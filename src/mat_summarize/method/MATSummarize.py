@@ -121,7 +121,7 @@ class MATSummarize(ABC):
                 tid_anterior = row.tid
                 idx += 1
 
-            p = Point(None, rid, row.x, row.y, row.date_time, None, fsemantics)
+            p = Point(None, rid, row.x, row.y, getattr(row, 'date_time', getattr(row, 'time', None)), None, fsemantics)
             self._points.append(p)
             self._dataset[idx].add_point(p)
             rid += 1

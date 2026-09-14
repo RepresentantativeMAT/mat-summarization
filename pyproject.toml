@@ -6,13 +6,17 @@ build-backend = "hatchling.build"
 name = "mat-summarize"
 version = "0.0.1"
 authors = [
-    { name = "Jonathan Roberto Fragoso Bonatto", email = "jonrfbonatto@gmail.com" },
-    { name = "Vanessa Lago Machado", email = "vanessalagomachado@gmail.com" }
+    { name = "Jonathan Roberto Fragoso Bonatto", email = "jonathanrfbonatto@gmail.com" },
+    { name = "Vanessa Lago Machado", email = "vanessalagomachado@gmail.com" },
+]
+maintainers = [
+    { name = "Jonathan Roberto Fragoso Bonatto", email = "jonathanrfbonatto@gmail.com" },
+    { name = "Vanessa Lago Machado", email = "vanessalagomachado@gmail.com" },
 ]
 description = "A package of methods to summarize MATs"
+keywords = ["MAT", "summarization", "summarize", "trajectory"]
 readme = "README.md"
 requires-python = ">=3.9"
-classifiers = []
 license = "GPL-3.0-only"
 license-files = ["LICEN[CS]E*"]
 dependencies = [
@@ -20,10 +24,15 @@ dependencies = [
     "pandas>=2.2",
     "scipy>=1.14"
 ]
+classifiers = [
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+]
 
 [project.urls]
-Homepage = "https://github.com/RepresentantativeMAT/mat-summarization"
-Issues = "https://github.com/RepresentantativeMAT/mat-summarization/issues"
+issues = "https://github.com/RepresentantativeMAT/mat-summarization/issues"
+source = "https://github.com/RepresentantativeMAT/mat-summarization"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/mat_summarization"]
+packages = ["src/mat-summarize"]

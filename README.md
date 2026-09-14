@@ -103,26 +103,27 @@ classDiagram
 
 ```text
 /
-├── README.md            # Entry point project documentation
-├── docs/                # Extended project documentation (approaches and architecture guides)
-├── logs/                # Directory reserved for execution streams and debugging
-├── data/                # Local datasets manipulation
-│   ├── input/           # CSV spreadsheet repository for raw modeling
-│   └── output/          # Representative trajectories extracted by the model (.csv)
-├── method/              # Contains the clustering and summarization methods logic
-│   ├── MATSummarize.py  # Base Abstract Class (Template Method Pattern)
-│   ├── MATSG.py         # Subclass applying Spatial heuristics
-│   ├── MATSGT.py        # Subclass adding partitioning via Time STIs
-│   └── MUITAS.py        # Algorithmic univariate scoring calculations
-├── model/               # Structural and Geometric Models
-│   ├── AttributeValue.py# Embedded dictionaries of <Aspect:Value> (e.g., {WEATHER: "CLOUDS"})
-│   ├── Centroid.py      # Groups Space-Time cuts
-│   ├── Point.py         # Abstract elements of raw Lat/Lon 
-│   ├── SemanticAspect.py# Dimensional treatment
-│   ├── TemporalAspect.py# Datetime utility wrapper 
-│   └── Util.py          # Global Euclidean distances and cKDTree mappings
-└── execution/           # Entry Point and Main Runner
-    └── runner.py        # Local script orchestrator
+├── README.md                       # Entry point project documentation
+├── documents/                      # Extended project documentation (approaches and architecture guides)
+├── logs/                           # Directory reserved for execution streams and debugging
+├── data/                           # Local datasets manipulation
+│   ├── input/                      # CSV spreadsheet repository for raw modeling
+│   └── output/                     # Representative trajectories extracted by the model (.csv)
+├── src/
+│   └── method/                     # Contains the clustering and summarization methods logic
+│       ├── MATSummarize.py         # Base Abstract Class (Template Method Pattern)
+│       ├── MATSG.py                # Subclass applying Spatial heuristics
+│       ├── MATSGT.py               # Subclass adding partitioning via Time STIs
+│       └── MUITAS.py               # Algorithmic univariate scoring calculations
+│   └── model/                      # Structural and Geometric Models
+│       ├── AttributeValue.py       # Embedded dictionaries of <Aspect:Value> (e.g., {WEATHER: "CLOUDS"})
+│       ├── Centroid.py             # Groups Space-Time cuts
+│       ├── Point.py                # Abstract elements of raw Lat/Lon 
+│       ├── SemanticAspect.py       # Dimensional treatment
+│       ├── TemporalAspect.py       # Datetime utility wrapper 
+│       └── Util.py                 # Global Euclidean distances and cKDTree mappings
+└── execution/                      # Entry Point and Main Runner
+    └── runner.py                   # Local script orchestrator
 ```
 
 ---
@@ -130,13 +131,14 @@ classDiagram
 ## 🚀 How to Install and Run
 
 **Prerequisites**:
-*   Python 3.10+
-*   Libraries from `requirements.txt` (Ex: `pandas`, `numpy`, `scipy`)
+*   Python 3.9+
+*   numpy
+*   pandas
+*   scipy
 
-**1. Clone and Prepare the Environment**
+**1. Install the package**
 ```bash
-git clone https://github.com/RepresentantativeMAT/mat-summarization.git
-pip install -r requirements.txt
+pip install mat-summarize
 ```
 
 **2. Running a Quick Test (`runner.py`)**

@@ -3,7 +3,7 @@ import os
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from ..src.mat_summarization.method.MATSG import MATSG
+from ..src.mat_summarize.method.MATSG import MATSG
 
 def test():
     
