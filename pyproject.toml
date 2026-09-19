@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mat-summarize"
-version = "0.0.1"
+version = "0.0.3"
 authors = [
     { name = "Jonathan Roberto Fragoso Bonatto", email = "jonathanrfbonatto@gmail.com" },
     { name = "Vanessa Lago Machado", email = "vanessalagomachado@gmail.com" },
@@ -35,4 +35,4 @@ issues = "https://github.com/RepresentantativeMAT/mat-summarization/issues"
 source = "https://github.com/RepresentantativeMAT/mat-summarization"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/mat-summarize"]
+packages = ["src/mat_summarize"]
