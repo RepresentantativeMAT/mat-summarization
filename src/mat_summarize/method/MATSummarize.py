@@ -77,7 +77,6 @@ class MATSummarize(ABC):
             feat_list = []
             for name in feat:
                 feat_list.append([a for a in self._aspects if a.name == name.upper()][0])
-            print(feat_list)
             self._features.append(tuple(sorted(feat_list, key=lambda aspect: aspect.type)))
 
 #provavel alteracao para utilizar FEATURES
@@ -333,7 +332,7 @@ class MATSummarize(ABC):
         
         return new_map_sorted
 
-    def execute(self, dir, file, lst_categorical_pd, values_null, ignore_columns, pattern_date_input, rc, features:list[tuple[SemanticAspect, ...]]):
+    def execute(self, dir, file, lst_categorical_pd, values_null, ignore_columns, pattern_date_input, features:list[tuple[SemanticAspect, ...]]):
         self._initial_temp = datetime.today()
         self._directory = dir
         self._filename = file
@@ -354,8 +353,8 @@ class MATSummarize(ABC):
 
         self.load(path=self._path, ignore_columns=ignore_columns, force_cat_columns=lst_categorical_pd, features=features)
 
-        self._rc = rc
-        self._trc = (rc * len(self._points)) if rc > 0.0 else 2
+        self._rc = self._trc
+        self._trc = (self._trc * len(self._points)) if self._trc > 0.0 else 2
 
         self.compute_min_spatial_threshold()
         self.summarize_trajectories()

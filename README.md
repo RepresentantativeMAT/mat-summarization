@@ -104,12 +104,11 @@ classDiagram
 ```text
 /
 ├── README.md                       # Entry point project documentation
-├── documents/                      # Extended project documentation (approaches and architecture guides)
-├── logs/                           # Directory reserved for execution streams and debugging
+├── docs/                           # Extended project documentation (approaches and architecture guides)
 ├── data/                           # Local datasets manipulation
 │   ├── input/                      # CSV spreadsheet repository for raw modeling
 │   └── output/                     # Representative trajectories extracted by the model (.csv)
-├── src/
+├── src/mat_summarize/              # Main package
 │   └── method/                     # Contains the clustering and summarization methods logic
 │       ├── MATSummarize.py         # Base Abstract Class (Template Method Pattern)
 │       ├── MATSG.py                # Subclass applying Spatial heuristics
@@ -122,58 +121,129 @@ classDiagram
 │       ├── SemanticAspect.py       # Dimensional treatment
 │       ├── TemporalAspect.py       # Datetime utility wrapper 
 │       └── Util.py                 # Global Euclidean distances and cKDTree mappings
-└── execution/                      # Entry Point and Main Runner
-    └── runner.py                   # Local script orchestrator
 ```
 
 ---
 
 ## 🚀 How to Install and Run
 
-**Prerequisites**:
-*   Python 3.9+
-*   numpy
-*   pandas
-*   scipy
+### Prerequisites
+*   Python 3.9 or later
+*   NumPy
+*   Pandas
+*   SciPy
 
-**1. Install the package**
+### 1. Installation
+
+Install the package using `pip`:
+
 ```bash
 pip install mat-summarize
 ```
 
-**2. Running a Quick Test (`runner.py`)**
+### 2. Running MAT-Summarize
 
-A mock test environment and base orchestration are prepared in the `execution/` folder. It points the extractions directly to the input and output reciprocals of the `data/` folder.
+#### Step 1: Import a Method
+
+MAT-Summarize provides two main methods: `MATSG` and `MATSGT`. Import the method you want to use:
 
 ```python
-# In execution/runner.py
-from method.MATSGT import MATSGT
+from mat_summarize.method import MATSGT
+```
 
-# 1. Instantiate the class pointing the datasets dynamically
+#### Step 2: Initialize the Method
+
+Create an instance of the selected method:
+
+```python
 model_sgt = MATSGT(
     trc=0.25,
     trv=0.25,
-    path=os.path.join(INPUT_DIR, 'Running_Example_v5.csv')
-)
-
-# 2. Execute the method passing base traits and dump location
-model_sgt.execute(
-    lst_categorical_pd=['price'],  # columns forced to act as discrete string
-    values_null=[-1, -999],        # Null/empty values of your raw dataset 
-    pattern_date_input='?',        # Date regex/patterns or ? for default full-day minute format (24h)
-    dir=f"{OUTPUT_DIR}/", # Automatic directory resolved by the OS for dump         
-    file='teste_saida',
-    rc=0.25,
-    trv=0.25,
-    ignore_columns=None
+    path='test_input.csv'
 )
 ```
 
-**3. Resulting Output**
-The execution will export the dataset history under a CSV document:
-`teste_saida rc 25 rv 25 - zX.csv` 
+The constructor accepts the following parameters:
 
-Upon opening it, it will display the list of points condensed numerically and temporally (with dict-like markings for varied attributes such as `{23:20 - 23:30 prop: 0.33}`). The header will detail the Method used, Coverage, and the amount of Reduction executed over the input root sample.
+| Parameter | Description                                                                |
+| --------- | -------------------------------------------------------------------------- |
+| `trc`     | Threshold for relevant cells (`tauRelevantCell`).                          |
+| `trv`     | Threshold for the representativeness value (`tauRepresentativenessValue`). |
+| `path`    | Path to the input dataset.                                                 |
+
+#### Step 3: Execute the Method
+
+Run the method using the `execute()` function:
+
+```python
+model_sgt.execute(
+    lst_categorical_pd=['price'],
+    values_null=[-1, -999],
+    pattern_date_input='?',
+    dir='data/',
+    file='test_output',
+    ignore_columns=None,
+    features=[('poi',), ('price',), ('weather', 'precip')]
+)
+```
+
+The `execute()` function accepts the following parameters:
+
+| Parameter            | Description                                                                            |
+| -------------------- | -------------------------------------------------------------------------------------- |
+| `lst_categorical_pd` | List of columns that should always be treated as categorical.                          |
+| `values_null`        | List of values that represent missing data.                                            |
+| `pattern_date_input` | '?' Flags if trajectory data will be daily and adjusts to hh:mm format.                |
+| `dir`                | Path to the output directory.                                                          |
+| `file`               | Name of the output file.                                                               |
+| `ignore_columns`     | List of dataset columns to exclude from processing. Use `None` to include all columns. |
+| `features`           | List of tuples specifying the attributes to be used by the method.                     |
+
+#### Complete Example
+
+```python
+from mat_summarize.method import MATSGT
+
+model_sgt = MATSGT(
+    trc=0.25,
+    trv=0.25,
+    path='test_input.csv'
+)
+
+model_sgt.execute(
+    lst_categorical_pd=['price'],
+    values_null=[-1, -999],
+    pattern_date_input='?',
+    dir='data/',
+    file='test_output',
+    ignore_columns=None,
+    features=[('poi',), ('price',), ('weather', 'precip')]
+)
+```
+
+### 3. Output
+
+After execution, MAT-Summarize exports the dataset history as a CSV file.
+
+For the example above, the output file will be named:
+
+```text
+test_output rc 25 rv 25 - zX.csv
+```
+
+The resulting CSV contains a numerical and temporal condensation of the input data. Some attributes may be represented using dictionary-like notation, such as:
+
+```text
+{23:20 - 23:30 prop: 0.33}
+```
+
+The output header provides information about:
+
+* The method used.
+* The coverage achieved.
+* The reduction applied to the original dataset.
+
+This allows you to evaluate how the input data was condensed while preserving relevant information.
 
 ---
 
@@ -191,3 +261,7 @@ This research was partially funded by SoBigData++ Project - by Transnational Acc
 For formal and architectural in-depth understanding based on the original research articles, refer to:
 - **MAT-SG ([Springer Link](https://link.springer.com/chapter/10.1007/978-3-031-12423-5_33))**: *Multiple-Aspect Trajectory Summarization based on a spatial Grid*
 - **MAT-SGT ([JIDM](https://journals-sol.sbc.org.br/index.php/jidm/article/view/4110))**: *Multiple-Aspect Trajectory Summarization via Grid and Time*
+
+## 📞 Contacts
+- [Jonathan Roberto Fragoso Bonatto](mailto:jonathanrfbonatto@gmail.com)
+- [Vanessa Lago Machado](mailto:vanessalagomachado@gmail.com)
