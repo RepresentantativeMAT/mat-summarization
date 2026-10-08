@@ -1,0 +1,16 @@
+Method runtime information:
+Start timestamp: 2026-10-07 18:26:49.342276
+End timestamp: 2026-10-07 18:26:49.358706
+##
+Info input dataset:
+|input.T|, |input.T.points|
+6, 32
+##
+RT setting infos:
+method, thresholdCellSize, CellSize, tauRelevantCell, tauRepresentativenessValue, |cell|, minPointsRC, |rt|, |cover_points|, spatialThreshold
+MAT-SGT, 20, 10.779068037176401, 0.25, 0.25, 2, 8.0, 2, 6, 0.7622025199530761
+##
+RT description:
+lat_lon, time, poi, price," weather, precip", mapping
+1.0333333333333334 7.733333333333333, 23:20 - 08:45, [{HOME: 0.6666666666666666; LIBRARY: 0.3333333333333333}], [{*-1: 0.6666666666666666; *2: 0.3333333333333333}], [{CLEAR; 10: 0.6666666666666666; CLOUDS; 20: 0.3333333333333333}], {1: 6; 2: 9; 4: 19}, 
+0.6666666666666666 6.666666666666667, 23:20 - 06:50, [{HOME: 1.0}], [{*-1: 1.0}], [{CLEAR; 10: 1.0}], {3: 11; 4: 17; 5: 22}, 

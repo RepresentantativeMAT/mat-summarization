@@ -30,10 +30,23 @@ Its execution aims to suppress noisy trajectory *outliers* by unifying neighbori
 It solves the narrative problem: an individual might visit the same restaurant 3 separate times during the day, yet MAT-SG would group everything into a single point. **MAT-SGT** preserves the chronological aspect by slicing the spatial cluster into representative contiguous continuous time lapses (`STI`).
 
 **Extraction Characteristics:**
-1. It follows exactly the same geographical *TRC* scanning of the spatial grid described above.
+1. It follows exactly the same spatial grid scanning described above.
 2. However, after isolating points within a viable cell, MAT-SGT triggers the **STI Tracker** (*Significant Temporal Intervals*).
 3. Points from that cell are evaluated by their proximity on the clock, suppressing bizarre chronological gaps. 
 4. Clusters of contiguous times that exceed the minimum percentage time window required by the Time Validation Threshold limit (`TRV`) fund their own Centroid!
 5. **Divisive Restriction**: This means that the same 2D cell of a main square can generate multiple Representative Centroids along the listing if the trajectory is cut into sub-departures and sub-arrivals from that location in different windows (e.g., *Breakfast* vs *Night Stroll*).
 
 **Use Cases**: MAT-SGT is the foundation for Smart Cities studies on sequential prediction or sub-routine mining (Sequential Pattern Mining), because it ensures that the computed trajectory can be perfectly "reproduced" on the clock, enabling Markov networks or regression flows over ordered real human activities.
+
+---
+
+## 🔗 3. Feature-Based Extension (Handling Semantic Dependency)
+
+*Reference:* [Feature Summarization Method Documentation](Feature_Summarization_Method.md)
+
+While the first version of MAT-SG and MAT-SGT fundamentally resolve **Space** and **Time**, respectively, both assumed by default that semantic attributes (like `POI`, `Price`, `Weather`) are statistically independent during summarization. 
+
+The **Feature-Based Extension** was developed to solve the *Semantic Dependency* problem:
+- It allows the user to explicitly define that `price` is intrinsically tied to the `POI`.
+- Instead of calculating isolated distributions (which might generate a contradictory centroid like `POI=Restaurant` and `price=0` if a free Park was nearby), the framework extracts these as a composed Tuple `(Restaurant, 80)`.
+- **Use Cases**: Critical for complex multidimensional analysis, such as economics (spending habits tied to specific locations) or environmental studies (speed tied to weather conditions), avoiding semantic hallucinations during centroid generation.

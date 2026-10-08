@@ -4,14 +4,14 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mat-summarize"
-version = "0.0.3"
+version = "0.1.0"
 authors = [
-    { name = "Jonathan Roberto Fragoso Bonatto", email = "jonathanrfbonatto@gmail.com" },
     { name = "Vanessa Lago Machado", email = "vanessalagomachado@gmail.com" },
+    { name = "Jonathan Roberto Fragoso Bonatto", email = "jonathanrfbonatto@gmail.com" },
 ]
 maintainers = [
-    { name = "Jonathan Roberto Fragoso Bonatto", email = "jonathanrfbonatto@gmail.com" },
     { name = "Vanessa Lago Machado", email = "vanessalagomachado@gmail.com" },
+    { name = "Jonathan Roberto Fragoso Bonatto", email = "jonathanrfbonatto@gmail.com" },
 ]
 description = "A package of methods to summarize MATs"
 keywords = ["MAT", "summarization", "summarize", "trajectory"]

@@ -37,6 +37,9 @@ class MATSummarize(ABC):
         pass
 ```
 
+### Integrating the Feature Extension
+To support dependent semantic attributes (Composed Features) without breaking the established pattern, the framework utilizes an additional hook `process_representative_point()`. After the default numerical and categorical fusion is performed by the base class, the `FeatureAggregator` component can step in to extract and proportionally distribute user-defined tuple combinations (e.g., `(POI, price)`), natively extending the generated `Centroid` with coherent contextual data. For detailed mechanics, refer to the [Feature Summarization Method](Feature_Summarization_Method.md).
+
 ## 3. The Concrete Extensions
 
 ### Child A: `MATSGT` (Sequential Time)

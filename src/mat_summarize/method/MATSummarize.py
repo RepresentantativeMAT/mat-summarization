@@ -69,6 +69,18 @@ class MATSummarize(ABC):
         for i in df['tid'].unique():
             self._dataset.append(MultipleAspectTrajectory(None, i))
 
+        time_col = 'date_time' if 'date_time' in df.columns else 'time' if 'time' in df.columns else None
+
+        if time_col:
+            if pd.to_numeric(df[time_col], errors='coerce').notna().all():
+                self._daily_info = True
+                self._representative_trajectory.daily_info = True
+                df[time_col] = df[time_col].astype(int)
+            else:
+                self._daily_info = False
+                self._representative_trajectory.daily_info = False
+                df[time_col] = pd.to_datetime(df[time_col], format='mixed', errors='coerce')
+
         df[['x', 'y']] = df['lat_lon'].str.split(' ', expand=True).astype(float)
 
         semantic_columns = [c for c in df.columns if c in aspects_map]
@@ -332,16 +344,20 @@ class MATSummarize(ABC):
         
         return new_map_sorted
 
-    def execute(self, dir, file, lst_categorical_pd, values_null, ignore_columns, pattern_date_input, features:list[tuple[SemanticAspect, ...]]):
+    def execute(self, dir, file, lst_categorical_pd = None, values_null = None, ignore_columns = None, features:list[tuple[SemanticAspect, ...]] = None):
+        if features is None:
+            features = []
+        if lst_categorical_pd is None:
+            lst_categorical_pd = []
+        if values_null is None:
+            values_null = []
+        if ignore_columns is None:
+            ignore_columns = []
         self._initial_temp = datetime.today()
         self._directory = dir
         self._filename = file
         self._values_null = [float(x) for x in values_null] if values_null is not None else []
         self._representative_trajectory = MultipleAspectTrajectory('representative')
-
-        if pattern_date_input == '?':
-            self._representative_trajectory.daily_info = True
-            self._daily_info = True
 
         self._spatial_cell_grid = defaultdict(list)
         self._semantic_numeric_fusion_val = defaultdict(list)
@@ -454,11 +470,23 @@ class MATSummarize(ABC):
                 time_atv = rp.find_feat_value((SemanticAspect("TIME", type=SemanticType.CATEGORICAL),))
                 
                 if rp.sti is None and time_atv is not None:
-                    if isinstance(time_atv[1], dict):
-                        time_val = '{' + '; '.join([f"{k}: {v}" for k, v in time_atv[1].items()]) + '}'
-                        time_val = time_val.replace("'", "")
+                    time_val_obj = time_atv[1][0] if isinstance(time_atv[1], list) and len(time_atv[1]) > 0 else time_atv[1]
+                    is_list_t = isinstance(time_atv[1], list)
+                    
+                    if isinstance(time_val_obj, dict):
+                        float_keys = [k for k, v in time_val_obj.items() if isinstance(v, float)]
+                        rounded_dict = {k: round(v, 2) if isinstance(v, float) else v for k, v in time_val_obj.items()}
+                        if float_keys and sum(time_val_obj[k] for k in float_keys) > 0.98:
+                            max_k = max(float_keys, key=lambda k: time_val_obj[k])
+                            diff = 1.0 - sum(rounded_dict[k] for k in float_keys)
+                            rounded_dict[max_k] = round(rounded_dict[max_k] + diff, 2)
+                        time_val = '{' + '; '.join([f"{k}: {v:.2f}" if isinstance(v, float) else f"{k}: {v}" for k, v in rounded_dict.items()]) + '}'
                     else:
-                        time_val = str(time_atv[1])
+                        time_val = f"{time_val_obj:.2f}" if isinstance(time_val_obj, float) else str(time_val_obj)
+                    
+                    if is_list_t:
+                        time_val = f"[{time_val}]"
+                    time_val = time_val.replace("'", "")
 
                 each_point = f"{rp.x} {rp.y}, {time_val}, "
 
@@ -467,18 +495,29 @@ class MATSummarize(ABC):
                     if atv is None:
                         each_point += 'null, '
                     else:
-                        if isinstance(atv[1], dict):
+                        val_obj = atv[1][0] if isinstance(atv[1], list) and len(atv[1]) > 0 else atv[1]
+                        is_list = isinstance(atv[1], list)
+                        if isinstance(val_obj, dict):
                             items = []
-                            for k, v in atv[1].items():
+                            float_keys = [k for k, v in val_obj.items() if isinstance(v, float)]
+                            rounded_dict = {k: round(v, 2) if isinstance(v, float) else v for k, v in val_obj.items()}
+                            if float_keys and sum(val_obj[k] for k in float_keys) > 0.98:
+                                max_k = max(float_keys, key=lambda k: val_obj[k])
+                                diff = 1.0 - sum(rounded_dict[k] for k in float_keys)
+                                rounded_dict[max_k] = round(rounded_dict[max_k] + diff, 2)
+                            
+                            for k, v in rounded_dict.items():
                                 if isinstance(k, tuple):
                                     k_str = "{" + ", ".join(str(i) for i in k) + "}"
                                 else:
                                     k_str = str(k)
-                                items.append(f"{k_str}: {v}")
+                                items.append(f"{k_str}: {v:.2f}" if isinstance(v, float) else f"{k_str}: {v}")
                             val_str = '{' + '; '.join(items) + '}'
                         else:
-                            val_str = str(atv[1])
+                            val_str = f"{val_obj:.2f}" if isinstance(val_obj, float) else str(val_obj)
                             
+                        if is_list:
+                            val_str = f"[{val_str}]"
                         # Replace to avoid python single quotes and clean up output
                         val_str = val_str.replace("'", "").replace(",", ";")
                         each_point += f"{val_str}, "
